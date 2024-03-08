@@ -2,22 +2,10 @@
 
 @section('content')
 <div class="container">
-    <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card">
-                <div class="card-header">{{ __('Dashboard') }}</div>
-
-                <div class="card-body">
-                    @if (session('status'))
-                        <div class="alert alert-success" role="alert">
-                            {{ session('status') }}
-                        </div>
-                    @endif
-
-                    {{ __('You are logged in!') }}
-                </div>
-            </div>
+    @if (Auth::check()) <!-- This check is optional here since the route is already protected -->
+        <div id="app">
+            <vin-decoder></vin-decoder>
         </div>
-    </div>
+    @endif
 </div>
 @endsection

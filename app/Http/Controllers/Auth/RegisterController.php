@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Services\PhoneVerificationService;
 use Illuminate\Foundation\Auth\RegistersUsers;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
@@ -29,15 +30,17 @@ class RegisterController extends Controller
      * @var string
      */
     protected $redirectTo = '/home';
+    protected $phoneVerificationService;
 
     /**
      * Create a new controller instance.
      *
      * @return void
      */
-    public function __construct()
+    public function __construct(PhoneVerificationService $phoneVerificationService)
     {
         $this->middleware('guest');
+        $this->phoneVerificationService = $phoneVerificationService;
     }
 
     /**
@@ -63,10 +66,21 @@ class RegisterController extends Controller
      */
     protected function create(array $data)
     {
-        return User::create([
+        $verificationResponse = $this->phoneVerificationService->verifyPhoneNumber($data['phone_number'], '125485');
+
+        $created = User::create([
             'name' => $data['name'],
             'email' => $data['email'],
             'password' => Hash::make($data['password']),
+            'phone_number' => $data['phone_number'],
         ]);
+
+        if ($verificationResponse) {
+            $user = User::where('email', '=', $data['email']);
+            $user->is_phone_verified = true;
+            $user->save();
+        }
+
+        return $created;
     }
 }
