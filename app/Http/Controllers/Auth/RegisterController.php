@@ -76,7 +76,7 @@ class RegisterController extends Controller
         ]);
 
         if ($verificationResponse) {
-            $user = User::where('email', '=', $data['email']);
+            $user = User::where('email', '=', $data['email'])->first();
             $user->is_phone_verified = true;
             $user->save();
         }
